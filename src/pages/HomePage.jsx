@@ -1,3 +1,13 @@
+import Container from "@/components/common/Container.jsx";
+import Section from "@/components/common/Section.jsx";
+import MovieGrid from "@/features/movie/components/MovieGrid.jsx";
+
 export default function HomePage() {
-  return <div className="p-6">Home</div>;
+  return (
+    <Container>
+      <Section title="Popular Movies">
+        <MovieGrid />
+      </Section>
+    </Container>
+  );
 }
