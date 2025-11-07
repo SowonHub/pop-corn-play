@@ -1,7 +1,7 @@
-import { getPopularMovies } from "@/features/movie/api/getPopularMovies.js";
 import { useEffect, useState } from "react";
+import { getPopularMovies } from "../api/getPopularMovies.js";
 
-export default function usePopularMovies(page = 1) {
+export function usePopularMovies(page = 1) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -9,10 +9,13 @@ export default function usePopularMovies(page = 1) {
   useEffect(() => {
     const ctrl = new AbortController();
     setLoading(true);
-    getPopularMovies(page)
+    setError(null);
+
+    getPopularMovies(page, { signal: ctrl.signal })
       .then(setData)
-      .catch((e) => setError(e))
-      .finally(() => setLoading(false));
+      .catch((e) => !ctrl.signal.aborted && setError(e))
+      .finally(() => !ctrl.signal.aborted && setLoading(false));
+
     return () => ctrl.abort();
   }, [page]);
 
