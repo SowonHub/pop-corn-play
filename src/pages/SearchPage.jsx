@@ -8,15 +8,15 @@ import { useSearchParams } from "react-router-dom";
 
 export default function SearchPage() {
   const [params] = useSearchParams();
-  const q = params.get("q") ?? "";
-  const qDebounced = useDebounce(q, 300);
-  const { data, loading, error } = useSearchMovies(qDebounced);
+  const keyword = (params.get("keyword") || "").replace(/^"|"$/g, "").trim();
+  const debounced = useDebounce(keyword, 300);
+  const { data, loading, error } = useSearchMovies(debounced);
 
   const list = data?.results ?? [];
 
   return (
     <Container className="py-6 md:py-8 lg:py-10">
-      <Section title={`Search: "${q}"`}>
+      <Section title={keyword ? `검색 결과: ${keyword}` : "검색"}>
         {loading ? (
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -38,7 +38,7 @@ export default function SearchPage() {
           </div>
         ) : list.length === 0 ? (
           <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-6 text-center text-neutral-300">
-            "{q}"에 대한 검색 결과가 없습니다.
+            "{keyword}"에 대한 검색 결과가 없습니다.
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
