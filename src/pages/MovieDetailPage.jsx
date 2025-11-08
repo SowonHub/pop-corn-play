@@ -132,17 +132,18 @@ export default function MovieDetailPage() {
 
             {/* Overview */}
             <div className="mt-5">
-              <p className="max-w-[68ch] text-[15px] leading-7 break-words text-neutral-800 md:text-base md:leading-8 dark:text-neutral-200">
+              <p className="max-w-[68ch] text-[15px] leading-7 wrap-break-word text-neutral-800 md:text-base md:leading-8 dark:text-neutral-200">
                 {m.overview || "줄거리 정보가 없습니다."}
               </p>
             </div>
 
             {/* Actions (placeholder) */}
             <div className="mt-6 flex gap-2">
-              <Button className="!border-transparent !bg-neutral-900 !text-white dark:!bg-neutral-100 dark:!text-neutral-900">
+              <Button className="h-10 border border-transparent bg-neutral-900 px-4 text-white transition-none hover:bg-neutral-900 hover:text-white dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-100 dark:hover:text-neutral-900">
                 예고편 보기
               </Button>
-              <Button className="border-neutral-300 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100">
+
+              <Button className="h-10 border border-neutral-300 bg-white px-4 text-neutral-900 transition-none hover:bg-white hover:text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-800 dark:hover:text-neutral-100">
                 위시리스트
               </Button>
             </div>

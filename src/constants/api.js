@@ -7,6 +7,10 @@ export const API = {
 export function buildUrl(path, params = {}) {
   const url = new URL(`${API.BASE}${path}`);
   url.searchParams.set("api_key", API.KEY);
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  Object.entries(params).forEach(([k, v]) => {
+    if (v == null) return;
+    let s = typeof v === "string" ? v.replace(/^"|"$/g, "").trim() : String(v);
+    if (s !== "") url.searchParams.set(k, s);
+  });
   return url.toString();
 }

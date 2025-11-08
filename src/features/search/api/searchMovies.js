@@ -1,8 +1,12 @@
 import { buildUrl } from "@/constants/api.js";
 
 export async function searchMovies(query, page = 1, { signal } = {}) {
+  const q = String(query ?? "")
+    .replace(/^"|"$/g, "")
+    .trim();
+  if (!q) return { results: [], page: 1, total_results: 0, total_pages: 0 };
   const url = buildUrl("/search/movie", {
-    query,
+    query: q,
     page,
     include_adult: false,
     language: "ko-KR",
