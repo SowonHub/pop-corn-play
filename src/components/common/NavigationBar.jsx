@@ -1,7 +1,7 @@
 import { useAuth } from "@/app/auth/AuthProvider.jsx";
 import Container from "@/components/common/Container.jsx";
 import SearchInput from "@/components/common/SearchInput.jsx";
-import ThemeToggle from "@/components/common/ThemeToggle.jsx";
+// import ThemeToggle from "@/components/common/ThemeToggle.jsx";
 import { Link } from "react-router-dom";
 
 export default function NavigationBar() {
@@ -33,7 +33,7 @@ export default function NavigationBar() {
               <SearchInput compact />
             </div>
 
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
 
             {user ? (
               <button
