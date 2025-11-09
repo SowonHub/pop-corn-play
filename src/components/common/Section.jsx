@@ -1,11 +1,11 @@
-export default function Section({ title, children, right }) {
+export default function Section({ title, children, titleDescription }) {
   return (
     <section className="py-6 md:py-8">
       <div className="mb-3 flex items-end justify-between gap-3 md:mb-4">
         <h2 className="text-lg font-semibold tracking-tight md:text-2xl">
           {title}
         </h2>
-        {right}
+        {titleDescription}
       </div>
       {children}
     </section>
