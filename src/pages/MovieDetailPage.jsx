@@ -1,4 +1,5 @@
 // src/pages/MovieDetailPage.jsx
+import { Image } from "@/components/common";
 import Button from "@/components/common/Button.jsx";
 import Container from "@/components/common/Container.jsx";
 import Skeleton from "@/components/common/Skeleton.jsx";
@@ -50,16 +51,6 @@ export default function MovieDetailPage() {
     );
   }
 
-  const bg = m.backdrop_path
-    ? `https://image.tmdb.org/t/p/w1280${m.backdrop_path}`
-    : m.poster_path
-      ? `https://image.tmdb.org/t/p/w780${m.poster_path}`
-      : "";
-
-  const poster = m.poster_path
-    ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-    : "https://placehold.co/500x750?text=No+Image";
-
   const genres = (m.genres || []).map((g) => g.name);
   const meta = [
     m.release_date || "-",
@@ -71,14 +62,17 @@ export default function MovieDetailPage() {
 
   return (
     <div className="relative">
-      {/* Hero: backdrop + gradient + blur */}
+      {/* Hero: backdrop  gradient  blur */}
       <div className="absolute inset-0 -z-10">
-        {bg && (
-          <img
-            src={bg}
-            alt=""
-            aria-hidden
-            className="h-full w-full object-cover opacity-40"
+        {(m.backdrop_path || m.poster_path) && (
+          <Image
+            // 백드롭이 없으면 포스터로 대체 표시
+            src={m.backdrop_path || m.poster_path}
+            type={m.backdrop_path ? "backdrop" : "poster"}
+            alt={`${m.title} backdrop`}
+            width={1280}
+            height={720}
+            className="w-full object-cover"
           />
         )}
         <div className="absolute inset-0 bg-linear-to-b from-black/40 via-black/60 to-black/80 dark:from-neutral-900/60 dark:via-neutral-950 dark:to-neutral-950" />
@@ -99,11 +93,14 @@ export default function MovieDetailPage() {
         <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-[260px_1fr] lg:grid-cols-[320px_1fr]">
           {/* Poster (sticky on large) */}
           <div className="md:justify-self-start lg:sticky lg:top-24">
-            <div className="relative w-full max-w-[320px] lg:max-w-[360px] xl:max-w-[420px]">
-              <img
-                src={poster}
+            <div className="relative aspect-2/3 w-full max-w-[320px] overflow-hidden rounded-2xl bg-neutral-100 shadow-lg ring-1 ring-black/5 lg:max-w-[360px] xl:max-w-[420px] dark:bg-neutral-900 dark:ring-white/10">
+              <Image
+                src={m.poster_path}
+                type="poster"
                 alt={m.title}
-                className="aspect-2/3 max-h-[80vh] w-full rounded-xl border border-neutral-200 object-cover shadow-2xl dark:border-neutral-800"
+                width={342}
+                height={513}
+                className="h-full w-full object-cover"
               />
               {/* Rating badge */}
               <span className="absolute top-2 left-2 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-white shadow-sm ring-1 ring-white/20 backdrop-blur-sm">
