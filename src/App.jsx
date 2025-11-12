@@ -1,35 +1,23 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+/**
+ * [4단계] App.jsx - 앱의 메인 컴포넌트
+ * 
+ * 이 컴포넌트는:
+ * - RouterProvider를 사용해서 라우팅(페이지 이동)을 처리합니다
+ * - router.jsx에 정의된 경로에 따라 다른 페이지를 보여줍니다
+ * 
+ * 실행 순서:
+ * - AuthProvider 안에서 실행됩니다
+ * - URL에 따라 다른 페이지를 보여줍니다
+ * 
+ * 다음 단계: [5단계] router/router.jsx
+ */
 
-function App() {
-  const [count, setCount] = useState(0);
+// React Router에서 RouterProvider 가져오기
+import { RouterProvider } from "react-router-dom";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  );
+// 우리가 만든 라우터 설정 가져오기
+import { router } from "@/router";
+export default function App() {
+  return <RouterProvider router={router} />;
 }
 
-export default App;
