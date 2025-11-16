@@ -1,13 +1,13 @@
 ---
 name: 'ISSUE:'
 about: Describe this issue template's purpose here.
-title: 'feature: '
+title: ''
 labels: ''
 assignees: sowonhub
 
 ---
 
-## 어떤 기능인가요?
+## 🔮 어떤 기능인가요?
 > 
-## 작업 상세 내용
+## 🪄 작업 내용
 -
