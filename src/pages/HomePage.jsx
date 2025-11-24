@@ -1,5 +1,5 @@
-import { TopBanner } from "@/components/movies";
-import { Container, Grid, Section, SectionHeader } from "@/components/ui";
+import { PopularMovieGrid, TopBanner } from "@/components/movies";
+import { Container, Section, SectionHeader } from "@/components/ui";
 
 export default function HomePage() {
   return (
@@ -13,7 +13,7 @@ export default function HomePage() {
             <SectionHeader title="Popular" description="지금 뜨는 작품" />
           }
         >
-          <Grid />
+          <PopularMovieGrid />
         </Section>
       </Container>
     </div>
