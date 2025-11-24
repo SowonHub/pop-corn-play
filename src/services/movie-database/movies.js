@@ -1,32 +1,12 @@
 import { movieApiClient } from "@/services/movie-database/client";
+import {
+  MOVIE_API_ENDPOINTS,
+  MOVIE_IMAGE_CONFIG,
+  EMPTY_SEARCH_RESULT,
+  HTTP_URL_PATTERN,
+} from "@/services/movie-database/constants";
 
-export const MOVIE_API_ENDPOINTS = {
-  TRENDING_MOVIES_DAY: "/trending/movie/day",
-  POPULAR_MOVIES: "/movie/popular",
-  SEARCH_MOVIE: "/search/movie",
-  MOVIE_DETAIL: (id) => `/movie/${id}`,
-  SIMILAR_MOVIES: (id) => `/movie/${id}/similar`,
-};
-
-export const MOVIE_IMAGE_CONFIG = {
-  BASE: "https://image.tmdb.org/t/p/",
-  SIZE: {
-    poster: "w342",
-    backdrop: "w1280",
-    thumb: "w185",
-    original: "original",
-  },
-  NO_IMAGE: "/no-image.png",
-};
-
-const HTTP_URL_PATTERN = /^https?:\/\//;
-
-export const EMPTY_SEARCH_RESULT = {
-  results: [],
-  page: 1,
-  total_results: 0,
-  total_pages: 0,
-};
+export { MOVIE_API_ENDPOINTS, MOVIE_IMAGE_CONFIG, EMPTY_SEARCH_RESULT };
 
 export function getMovieImageUrl(path, type = "poster", size) {
   const hasNoPath = !path;
@@ -84,6 +64,7 @@ export async function getMovieSearch(searchKeyword, page = 1, { signal } = {}) {
       query: trimmedKeyword,
       page,
       include_adult: false,
+      language: "ko-KR",
     },
     signal,
   });

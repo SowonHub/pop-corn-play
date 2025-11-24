@@ -23,3 +23,5 @@ export const EMPTY_SEARCH_RESULT = {
   total_results: 0,
   total_pages: 0,
 };
+
+export const HTTP_URL_PATTERN = /^https?:\/\//;
