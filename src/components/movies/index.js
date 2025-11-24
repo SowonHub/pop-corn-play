@@ -4,6 +4,7 @@ export { default as MovieGallery } from "@/components/movies/MovieGallery.jsx";
 export { default as MovieGrid } from "@/components/movies/MovieGrid.jsx";
 export { default as MovieGridSkeleton } from "@/components/movies/MovieGridSkeleton.jsx";
 export { default as MovieHeader } from "@/components/movies/MovieHeader.jsx";
+export { default as PopularMovieGrid } from "@/components/movies/PopularMovieGrid.jsx";
 export { default as TopBanner } from "@/components/movies/TopBanner.jsx";
 export { default as TopBannerSkeleton } from "@/components/movies/TopBannerSkeleton.jsx";
 export { default as WishlistButton } from "@/components/movies/WishlistButton.jsx";
