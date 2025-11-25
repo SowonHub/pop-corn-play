@@ -1,30 +1,7 @@
 import { useDatabaseAuth } from "@/auth/context";
-import { useCallback, useEffect, useState } from "react";
-
-const BASE_KEY = "mini-project.wishlist";
-const listeners = new Set();
-
-// Global state to sync between components in the same session
-let globalState = {
-  userId: null,
-  items: [],
-};
-
-const getStorageKey = (userId) => (userId ? `${BASE_KEY}.${userId}` : null);
-
-const readStoredWishlist = (userId) => {
-  if (!userId || typeof window === "undefined") return [];
-
-  try {
-    const key = getStorageKey(userId);
-    const stored = window.localStorage.getItem(key);
-    if (!stored) return [];
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
+import { wishlistService } from "@/services/wishlist";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback } from "react";
 
 const normalizeMovie = (movie) => ({
   id: movie?.id,
@@ -35,133 +12,115 @@ const normalizeMovie = (movie) => ({
   release_date: movie?.release_date,
 });
 
-const persistWishlist = (userId, nextItems) => {
-  if (!userId || typeof window === "undefined") return;
-
-  try {
-    window.localStorage.setItem(
-      getStorageKey(userId),
-      JSON.stringify(nextItems),
-    );
-  } catch {
-    return;
-  }
-};
-
-const notifyListeners = (items) => {
-  listeners.forEach((listener) => listener(items));
-};
-
-const updateGlobalState = (userId, nextItems) => {
-  globalState = { userId, items: nextItems };
-  persistWishlist(userId, nextItems);
-  notifyListeners(nextItems);
-};
-
 export default function useWishlist() {
   const { user } = useDatabaseAuth();
   const userId = user?.id ?? null;
+  const queryClient = useQueryClient();
 
-  // Initialize state based on current user and global state
-  const [items, setItems] = useState(() => {
-    if (globalState.userId === userId) {
-      return globalState.items;
-    }
-    return readStoredWishlist(userId);
+  const queryKey = ["wishlist", userId];
+
+  const { data: items = [] } = useQuery({
+    queryKey,
+    queryFn: () => wishlistService.getItems(userId),
+    enabled: !!userId,
+    initialData: [],
   });
 
-  // Sync with global state and handle user changes
-  useEffect(() => {
-    // Update global state if user switched
-    if (globalState.userId !== userId) {
-      const newItems = readStoredWishlist(userId);
-      globalState = { userId, items: newItems };
-      // Notify others effectively resets them to the new user's list
-      notifyListeners(newItems);
-    }
+  const { mutate: addMutate } = useMutation({
+    mutationFn: (movie) => wishlistService.addItem(userId, movie),
+    // 2. Optimistic Update: UI를 즉시 업데이트
+    onMutate: async (movie) => {
+      // 진행 중인 쿼리 취소 (낙관적 업데이트 덮어쓰기 방지)
+      await queryClient.cancelQueries({ queryKey });
+      const previousItems = queryClient.getQueryData(queryKey) || [];
 
-    // Update local state if it differs (e.g. initially loaded from storage vs global)
-    if (items !== globalState.items) {
-      setItems(globalState.items);
-    }
-
-    const handleChange = (nextItems) => {
-      setItems(nextItems);
-    };
-
-    listeners.add(handleChange);
-
-    // Handle multi-tab sync
-    const handleStorageEvent = (event) => {
-      if (event.key === getStorageKey(userId)) {
-        const newItems = readStoredWishlist(userId);
-        if (globalState.userId === userId) {
-          globalState.items = newItems;
-          notifyListeners(newItems);
-        }
+      // 이미 목록에 없다면 추가
+      if (!previousItems.some((item) => item.id === movie.id)) {
+        queryClient.setQueryData(queryKey, [movie, ...previousItems]);
       }
-    };
 
-    window.addEventListener("storage", handleStorageEvent);
+      // 에러 발생 시 롤백을 위한 컨텍스트 반환
+      return { previousItems };
+    },
+    // 3. 에러 처리: 이전 상태로 롤백
+    onError: (err, newMovie, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(queryKey, context.previousItems);
+      }
+    },
+    // 4. 완료 처리: 서버 데이터와 동기화 (최신 데이터 보장)
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
 
-    return () => {
-      listeners.delete(handleChange);
-      window.removeEventListener("storage", handleStorageEvent);
-    };
-  }, [userId]); // Re-run when user changes
+  const { mutate: removeMutate } = useMutation({
+    mutationFn: (movieId) => wishlistService.removeItem(userId, movieId),
+    // 2. Optimistic Update: UI를 즉시 업데이트
+    onMutate: async (movieId) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previousItems = queryClient.getQueryData(queryKey) || [];
+
+      queryClient.setQueryData(
+        queryKey,
+        previousItems.filter((item) => item.id !== movieId),
+      );
+
+      return { previousItems };
+    },
+    // 3. 에러 처리: 이전 상태로 롤백
+    onError: (err, movieId, context) => {
+      if (context?.previousItems) {
+        queryClient.setQueryData(queryKey, context.previousItems);
+      }
+    },
+    // 4. 완료 처리: 서버 데이터와 동기화
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey });
+    },
+  });
 
   const add = useCallback(
     (movie) => {
-      if (!userId || !movie || movie.id == null) return;
-
-      const prev = globalState.items;
-      if (prev.some((item) => item.id === movie.id)) return;
-
-      const nextItems = [...prev, normalizeMovie(movie)];
-      updateGlobalState(userId, nextItems);
+      if (!userId) {
+        return;
+      }
+      const normalized = normalizeMovie(movie);
+      addMutate(normalized);
     },
-    [userId],
+    [userId, addMutate],
   );
 
   const remove = useCallback(
     (movieId) => {
-      if (!userId || movieId == null) return;
-
-      const prev = globalState.items;
-      const nextItems = prev.filter((item) => item.id !== movieId);
-
-      if (prev.length === nextItems.length) return; // No change
-
-      updateGlobalState(userId, nextItems);
+      if (!userId) {
+        return;
+      }
+      removeMutate(movieId);
     },
-    [userId],
+    [userId, removeMutate],
   );
 
   const toggle = useCallback(
     (movie) => {
-      if (!userId || !movie || movie.id == null) return;
-
-      const prev = globalState.items;
-      const exists = prev.some((item) => item.id === movie.id);
-
-      let nextItems;
-      if (exists) {
-        nextItems = prev.filter((item) => item.id !== movie.id);
-      } else {
-        nextItems = [...prev, normalizeMovie(movie)];
+      if (!userId) {
+        return;
       }
-
-      updateGlobalState(userId, nextItems);
+      const exists = items.some((item) => item.id === movie.id);
+      if (exists) {
+        remove(movie.id);
+      } else {
+        add(movie);
+      }
     },
-    [userId],
+    [userId, items, add, remove],
   );
 
   const contains = useCallback(
     (movieId) => {
-      if (!userId || movieId == null) return false;
       return items.some((item) => item.id === movieId);
     },
-    [items, userId],
+    [items],
   );
 
   return {
