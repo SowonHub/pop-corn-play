@@ -3,8 +3,8 @@
 🎬 영화 정보를 탐색하고 저장할 수 있는 **리액트 기반 영화 정보 웹앱**입니다.  
 🔥 인기/트렌딩 영화, 🔎 검색, 📌 상세 정보, 🎞️ 유사 작품 추천, ❤️ 위시리스트 기능을 제공합니다.
 
-- 🌐 **Demo**: (배포 링크)
-- 📦 **Repository**: (깃허브 링크)
+- 🌐 **Demo**: https://popcorn-play.sowonkim.com/
+- 📦 **Repository**: https://github.com/SowonHub/pop-corn-play
 
 ---
 
